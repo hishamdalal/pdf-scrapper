@@ -1,0 +1,84 @@
+@import url(icons/css/icons.css);
+
+body {
+    font-family: system-ui;
+    font-size: .9rem;
+    background: #213957;
+    color: white;
+}
+a {
+    display: inline-block;
+    text-decoration: none;
+    padding:.1rem .4rem; 
+    /* padding-inline: 0.4rem !important; */
+    margin-inline:.2rem;
+    border-radius: .7rem;
+    color:white; 
+}
+a:hover {
+    text-decoration: underline;
+}
+ul {
+    list-style: none;
+    padding-inline-start: 0;
+}
+.container {
+    list-style: none;
+    margin: 0;
+}
+.head {
+    padding: .3rem;
+    margin-block-end: 1.3rem;
+    display: grid;
+    grid-template-columns: 3rem 1fr 15rem 15rem;
+    font-weight: 700;    align-items: center;
+    justify-items: flex-start;
+}
+.row {
+    list-style: none;
+}
+.line {
+    margin-block: .4rem;
+    padding: .3rem;
+    display: grid;
+    grid-template-columns: 4rem 1fr 15rem 15rem;
+    align-items: center;
+    justify-items: flex-start;
+}
+li.head {
+    padding: .3rem;
+    margin-block-end: 1.3rem;
+}
+/* ul>li {
+    margin-block: .4rem;
+} */
+
+.txt-light { color: #ffffff; }
+.txt-dark { color: #000000; }
+.txt-primary { color: #77baff; }
+.txt-danger { color: red; }
+.txt-success{ color: green; }
+.txt-warning { color: #ffaa00; }
+.txt-info { color: lightslategray; }
+
+.bg-light, .txt-light a { background-color: #ffffff; }
+.bg-dark, .txt-dark a { background-color: #000000; }
+.bg-primary, .txt-primary a { background-color: #096acf; }
+.bg-primary, .txt-primary a { background-color: #096acf; }
+.bg-danger, .txt-danger  a { background-color: red; }
+.bg-success, .txt-success a { background-color: green; }
+.bg-warning, .txt-warning a { background-color: #ffaa00; }
+.bg-info, .txt-info 	 a { background-color: lightslategray; }
+
+h1 {
+    text-align: center;
+    font-family: fantasy;
+    font-weight: 100;
+    font-size: xxx-large;		
+}
+
+.proccess-finished {
+    display: inline-flex;
+    padding: .4rem 1.5rem;
+    border-radius: 1rem;
+}

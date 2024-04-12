@@ -1,0 +1,8 @@
+{
+    "require": {
+        "imangazaliev/didom": "^2.0"
+    },
+    "autoload": {
+        "App\\": "app/"
+    }
+}
