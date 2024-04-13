@@ -46,13 +46,15 @@ class WebDownloader extends Scrapper
 		
 		flush();
 		ob_flush();
-		
-		echo "<h2 class='site-name'>{$this->get_host()} -> <span>Page ({$this->page_num})</span></h2><hr>";
-		echo "<h3 class='site-url'>{$this->url} -> {$this->folder}<span></h3>";
-		echo('<h4>Page items count: ' . $count .'</h4>');
+
+		echo '<div class="page-details">';
+		echo "<h2 class='site-name'>{$this->get_host()} <span class='page-number'>Page ({$this->page_num})</span></h2>";
+		echo "<h3 class='site-url'>{$this->url} <span class='icon-folder-open-empty download-folder'>{$this->folder}</span></h3>";
+		echo '<h4>Page items count: <span class="count-number">' . $count .'</span></h4>';	
+		echo '</div>';
 
 		echo '<ol class="container">';
-		echo("<li class='head txt-dark bg-info'>#: <span>Title</span><span>Thumbnail</span><span>File</span></li>");
+		echo "<li class='head txt-dark bg-info'>#<span>Title</span><span>Thumbnail</span><span>File</span></li>";
 		
 		$i = 1;
 		foreach($cards as $card) {
@@ -228,7 +230,11 @@ class WebDownloader extends Scrapper
 		
 		echo '</ol>';
 		
-		if( $this->get_selector('next-page') ){
+		if ( $this->get_selector('next-page-end') ){
+			echo ("<p class='proccess-finished txt-light bg-success'>Finished</p>");
+			return;
+		}
+		else if( $this->get_selector('next-page') ){
 			$next_page_url = $this->get_host('/').$this->get_next_page_url($document, $this->get_selector('next-page'));
 			
 			flush();
@@ -276,5 +282,6 @@ $s->set_selector('post-link', 'a::attr(href)');
 $s->set_selector('post-thumb', 'img.card-img-top::attr(src)');
 $s->set_selector('pdf-link', 'a[href^="https://kolalkotob.com/download"]::attr(href)');
 $s->set_selector('next-page', '.pagination>li', 'find');
+$s->set_selector('next-page-end', '.pagination>li:nth(2).disabled');
 
 $s->start();

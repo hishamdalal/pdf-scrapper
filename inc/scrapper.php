@@ -21,8 +21,8 @@ class Scrapper
 
 	#-------------------------------------------------------------------------------------------#
 	function __construct($url, $path, $folder='') {
-		$this->first_url = $url;
-		$this->url = $url;
+		$this->first_url = urldecode($url);
+		$this->url = urldecode($url);
 		$this->folder = $folder;
 		$url_parts = parse_url($url);
 		$this->download_dir = $path.'/downloads/' . $url_parts['host'];

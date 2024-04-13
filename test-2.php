@@ -48,12 +48,14 @@ class WebDownloader extends Scrapper
 		flush();
 		ob_flush();
 		
-		echo "<h2 class='site-name'>{$this->get_host()} -> <span>Page ({$this->page_num})</span></h2><hr>";
-		echo "<h3 class='site-url'>{$this->url} -> {$this->folder}<span></h3>";
-		echo('<h4>Page items count: ' . $count .'</h4>');	
-	
+		echo '<div class="page-details">';
+		echo "<h2 class='site-name'>{$this->get_host()} <span class='page-number'>Page ({$this->page_num})</span></h2>";
+		echo "<h3 class='site-url'>{$this->url} <span class='download-folder'>{$this->folder}</span></h3>";
+		echo '<h4>Page items count: <span class="count-number">' . $count .'</span></h4>';	
+		echo '</div>';
+
 		echo '<ol class="container">';
-		echo("<li class='head txt-dark bg-info'>#: <span>Title</span><span>Thumbnail</span><span>File</span></li>");
+		echo "<li class='head txt-dark bg-info'>#<span>Title</span><span>Thumbnail</span><span>File</span></li>";
 		
 		$i = 1;
 		foreach($cards as $card) {

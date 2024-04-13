@@ -77,6 +77,24 @@ h1 {
     font-size: xxx-large;		
 }
 
+.page-details {
+    padding-inline: 2.6rem;
+    margin-block-end: 2rem;
+}
+.page-details > * {
+    padding: 0;
+    margin-block: .7rem;
+    display: grid;
+    justify-content: space-between;
+    grid-auto-flow: column;
+}
+.page-details span {
+    background-color: #a0a067;
+    padding: .2rem .8rem;
+    margin-inline-start: .4rem;
+    border-radius: .4rem;
+}
+
 .proccess-finished {
     display: inline-flex;
     padding: .4rem 1.5rem;
