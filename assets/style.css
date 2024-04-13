@@ -1,10 +1,31 @@
 @import url(icons/css/icons.css);
 
+.txt-light { color: #ffffff; }
+.txt-dark { color: #000000; }
+.txt-primary { color: #77baff; }
+.txt-danger { color: red; }
+.txt-success{ color: green; }
+.txt-warning { color: #ffaa00; }
+.txt-info { color: lightslategray; }
+
+.bg-light, .txt-light a { background-color: #ffffff; }
+.bg-dark, .txt-dark a { background-color: #000000; }
+.bg-primary, .txt-primary a { background-color: #096acf; }
+.bg-primary, .txt-primary a { background-color: #096acf; }
+.bg-danger, .txt-danger  a { background-color: red; }
+.bg-success, .txt-success a { background-color: green; }
+.bg-warning, .txt-warning a { background-color: #ffaa00; }
+.bg-info, .txt-info 	 a { background-color: lightslategray; }
+
+
 body {
     font-family: system-ui;
     font-size: .9rem;
     background: #213957;
     color: white;
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
 }
 a {
     display: inline-block;
@@ -25,6 +46,17 @@ ul {
 .container {
     list-style: none;
     margin: 0;
+    padding-inline: 2.4rem;
+}
+h1 {
+    text-align: center;
+    font-family: fantasy;
+    font-weight: 100;
+    font-size: xxx-large;		
+}
+
+.row {
+    list-style: none;
 }
 .head {
     padding: .3rem;
@@ -33,9 +65,12 @@ ul {
     grid-template-columns: 3rem 1fr 15rem 15rem;
     font-weight: 700;    align-items: center;
     justify-items: flex-start;
+    color: #fff;
 }
-.row {
-    list-style: none;
+
+li.head {
+    padding: .3rem;
+    margin-block-end: 1.3rem;
 }
 .line {
     margin-block: .4rem;
@@ -45,41 +80,11 @@ ul {
     align-items: center;
     justify-items: flex-start;
 }
-li.head {
-    padding: .3rem;
-    margin-block-end: 1.3rem;
-}
-/* ul>li {
-    margin-block: .4rem;
-} */
-
-.txt-light { color: #ffffff; }
-.txt-dark { color: #000000; }
-.txt-primary { color: #77baff; }
-.txt-danger { color: red; }
-.txt-success{ color: green; }
-.txt-warning { color: #ffaa00; }
-.txt-info { color: lightslategray; }
-
-.bg-light, .txt-light a { background-color: #ffffff; }
-.bg-dark, .txt-dark a { background-color: #000000; }
-.bg-primary, .txt-primary a { background-color: #096acf; }
-.bg-primary, .txt-primary a { background-color: #096acf; }
-.bg-danger, .txt-danger  a { background-color: red; }
-.bg-success, .txt-success a { background-color: green; }
-.bg-warning, .txt-warning a { background-color: #ffaa00; }
-.bg-info, .txt-info 	 a { background-color: lightslategray; }
-
-h1 {
-    text-align: center;
-    font-family: fantasy;
-    font-weight: 100;
-    font-size: xxx-large;		
-}
 
 .page-details {
-    padding-inline: 2.6rem;
-    margin-block-end: 2rem;
+    padding: .3rem 2.6rem;
+    margin-block: 2rem;
+    background: #2d606d;
 }
 .page-details > * {
     padding: 0;
