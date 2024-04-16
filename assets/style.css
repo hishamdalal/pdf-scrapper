@@ -79,6 +79,10 @@ li.head {
     grid-template-columns: 4rem 1fr 15rem 15rem;
     align-items: center;
     justify-items: flex-start;
+    border-radius: 1rem;
+}
+.line:hover{
+    background-color: #00000045;
 }
 
 .page-details {
@@ -99,7 +103,10 @@ li.head {
     margin-inline-start: .4rem;
     border-radius: .4rem;
 }
-
+[class^="icon-"] {
+    margin-inline: 0.2rem;
+    display: inline-block;
+}
 .proccess-finished {
     display: inline-flex;
     padding: .4rem 1.5rem;

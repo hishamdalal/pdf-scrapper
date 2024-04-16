@@ -1,6 +1,8 @@
 important/
 downloads/
 vendor/
+books/
+output/
 
 try.php
 clean_text.php

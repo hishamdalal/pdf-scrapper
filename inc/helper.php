@@ -61,14 +61,13 @@ function pre($title, $message=''){
 }
 
 function create_folder($path) {
-	if (! is_dir($path) ) {
-		try{
-			return mkdir($path);
-		}
-		catch(Exception $e) {
-			pre($e);
-		}
-	}
+	if (is_dir($path) ) {
+        return ['result'=>'fail', 'msg' => 'Directory: "'.$path.'" is already exist!', 'code'=>1];
+    }
+    if (! mkdir($path, 0777, true) ){
+        return ['result'=>'fail', 'msg'=> 'Couldn\' make dir: "'.$path.'"', 'code'=>2];
+    }
+    return ['result'=>'success', 'msg'=> 'Directory created successfully', 'code'=>3];
 }
 
 // https://stackoverflow.com/a/8891890/2269902
@@ -91,24 +90,42 @@ function full_url( $s, $use_forwarded_host = false ) {
     return url_origin( $s, $use_forwarded_host ) . $s['REQUEST_URI'];
 }
 
-function icon($code='txt-info') {
-    echo "<i class='{$code}'></i>";
-}
-function icon_msg($message, $color_code='txt-primary', $link='', $prefix_icon_code='', $suffix_icon_code='') {
-    if ($prefix_icon_code) {
-        $prefix_icon_code = "<i class='{$prefix_icon_code}'></i> ";
-    }
-    if ($suffix_icon_code) {
-        $suffix_icon_code = "<i class='{$suffix_icon_code}'></i>";
-    }
-    $prefix_link = $suffix_link = '';
-    if ($link) {
-        $prefix_link = "<a href='{$link}'>";
-        $suffix_link = '</a>';
-    }
-    echo "<li class='msg {$color_code}'>{$prefix_link}{$prefix_icon_code}{$message}{$suffix_icon_code}{$suffix_link}</li>";
-}
+// function icon($code='txt-info') {
+//     echo "<i class='{$code}'></i>";
+// }
+// function icon_msg($message, $color_code='txt-primary', $link='', $prefix_icon_code='', $suffix_icon_code='') {
+//     if ($prefix_icon_code) {
+//         $prefix_icon_code = "<i class='{$prefix_icon_code}'></i> ";
+//     }
+//     if ($suffix_icon_code) {
+//         $suffix_icon_code = "<i class='{$suffix_icon_code}'></i>";
+//     }
+//     $prefix_link = $suffix_link = '';
+//     if ($link) {
+//         $prefix_link = "<a href='{$link}'>";
+//         $suffix_link = '</a>';
+//     }
+//     echo "<li class='msg {$color_code}'>{$prefix_link}{$prefix_icon_code}{$message}{$suffix_icon_code}{$suffix_link}</li>";
+// }
 
+// https://stackoverflow.com/a/408416/2269902
+function is_404($url) {
+    $result = false;
+
+    $handle = curl_init($url);
+    curl_setopt($handle,  CURLOPT_RETURNTRANSFER, TRUE);
+    
+    $response = curl_exec($handle);
+    
+    /* Check for 404 (file not found). */
+    $httpCode = curl_getinfo($handle, CURLINFO_HTTP_CODE);
+    if($httpCode == 404) {
+        $result = true;
+    }
+    
+    curl_close($handle);
+    return $result;
+}
 
 class IconMsg
 {
