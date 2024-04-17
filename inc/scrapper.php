@@ -289,7 +289,7 @@ class Scrapper
 		try{
 			if ($this->download_file_types) {
 				@preg_match($this->download_file_types, $link, $matches);
-				Helper\pre('matches', [$matches, $link, $this->download_file_types]); 
+				// Helper\pre('matches', [$matches, $link, $this->download_file_types]); 
 				if ( count($matches) > 1 ) {
 					$content = @file_get_contents($link);
 					if ($content){

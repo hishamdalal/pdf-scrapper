@@ -64,7 +64,7 @@ function create_folder($path) {
 	if (is_dir($path) ) {
         return ['result'=>'fail', 'msg' => 'Directory: "'.$path.'" is already exist!', 'code'=>1];
     }
-    if (! mkdir($path, 0777, true) ){
+    if (! mkdir($path, 0770, true) ){
         return ['result'=>'fail', 'msg'=> 'Couldn\' make dir: "'.$path.'"', 'code'=>2];
     }
     return ['result'=>'success', 'msg'=> 'Directory created successfully', 'code'=>3];

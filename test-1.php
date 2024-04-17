@@ -253,12 +253,12 @@ require 'config.php';
 // $url = 'https://kolalkotob.com/cat77.html';
 // $folder = 'السيرة النبوية';
 
-$url = 'https://kolalkotob.com/cat1201.html';
-// $folder = 'السيرة النبوية';
+$url = 'https://kolalkotob.com/cat51.html';
+$folder = 'الموسوعات والأطالس';
 
 
 // $s = new WebDownloader($url, $path, $folder);
-$s = new WebDownloader($url);
+$s = new WebDownloader($url, $folder);
 // $s->set_auto_download_dir('.ourChoice>h3');
 $s->set_download_file_types();
 $s->set_selector('page-title', '.ourChoice>h3');
