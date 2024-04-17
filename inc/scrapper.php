@@ -2,6 +2,10 @@
 namespace App;
 use DiDom\Document;
 
+// TODO:
+// use direct file link to check files doublicate
+
+
 class Scrapper
 {
 	protected $name = 'PDF SCRAPPER';
@@ -24,20 +28,22 @@ class Scrapper
 	protected $pdf_done = null;
 	protected $img_done = null;
 	protected $icon_msg = null;
-	protected $timer = 1000;
 
 	#-------------------------------------------------------------------------------------------#
 	function __construct($url, $folder='') {
+		$url = trim($url, ' ');
 		$this->first_url = urldecode($url);
 		$this->url = urldecode($url);
 		$this->document = new Document($url, true);
-		$this->folder = $folder;
-		$this->page_title = $folder;
+		$this->folder = trim($folder, ' ');
+		$this->page_title = $this->folder;
 		$url_parts = parse_url($url);
 		$this->download_dir = DOWNLOADS_DIR . DS. $url_parts['host']. DS. ($folder ? $folder.DS : '');
 		$this->icon_msg = new Helper\IconMsg();
 
-		Helper\create_folder($this->download_dir);
+		$mkdir = Helper\create_folder($this->download_dir);
+		// Helper\pre($this->download_dir);
+		// Helper\pre('construct', $mkdir);
 	}
 	#-------------------------------------------------------------------------------------------#
 	function init($title_type='selector', $custom_title='', $func='first') {
@@ -55,24 +61,22 @@ class Scrapper
 		}
 	}
 	#-------------------------------------------------------------------------------------------#
-	function scroll_timer($ms=1000) {
-		$this->timer = $ms;
+	function auto_scroll() {
+		echo "<script>auto_scroll();</script>";
 	}
 	#-------------------------------------------------------------------------------------------#
-	function header($name='', $auto_scroll=true) {
+	function header($name='') {
 		
 		$name = empty($name) ? $this->name : $name;
 
 		echo "<h1 class='hero'>{$name}</h1>";
-		if ($auto_scroll) {
-			echo "
-			<script>
-			var scrollInterval = setInterval(function() { 
+		echo "
+		<script>
+			function auto_scroll(){
 				window.scrollTo(0, document.body.scrollHeight);
-			}, {$this->timer});
-			</script>
-			";
-		}
+			}
+		</script>
+		";
 	}
 	#-------------------------------------------------------------------------------------------#
 	function init_page_title($document, $from_page_header=false) {
@@ -129,16 +133,21 @@ class Scrapper
 	// }
 	#-------------------------------------------------------------------------------------------#
 	function set_download_dir_from_selector($node, $selector_key, $func='first') {
+		$page_title = $this->get_selector('page-title');
+
 		if (! $this->get_selector($selector_key)) {
 			return false;
 		}
+		
 		$result = $this->get_selector_node($node, $selector_key);
 		if ($result) {
-			$this->download_dir =  $this->download_dir .DS. $result->text();
+			$this->page_title = trim($result->text(), ' ');
+			$this->download_dir = $this->download_dir . $this->page_title;
 			
-			$r = Helper\create_folder($this->download_dir);
-			
-			if ($r['result'] == 'success') {
+			$mkdir = Helper\create_folder($this->download_dir);
+			// Helper\pre($this->download_dir);
+			// Helper\pre(__METHOD__, $mkdir);
+			if ($mkdir['result'] == 'success') {
 				return true;
 			}
 		}
@@ -349,7 +358,7 @@ class Scrapper
 	#-------------------------------------------------------------------------------------------#
 	function stop(){
 		echo ("<p class='proccess-finished txt-light bg-success'>Finished</p>");
-		echo "<script>clearInterval(scrollInterval);</script>";
+		$this->auto_scroll();
 	}
 	#-------------------------------------------------------------------------------------------#
 }

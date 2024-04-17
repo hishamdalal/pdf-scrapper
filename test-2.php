@@ -58,7 +58,7 @@ class WebDownloader extends Scrapper
 		
 		$i = 1;
 		foreach($cards as $card) {
-
+			
 			echo "<li class='row'>";
 			try {
 				$this->pdf_done = null;
@@ -104,6 +104,7 @@ class WebDownloader extends Scrapper
 				
 				flush();
 				ob_flush();
+				$this->auto_scroll();
 
 				#----- DOWNLOAD THUMBNAIL -----#
 				if( ! file_exists($save_to_img_path) ) {
@@ -266,5 +267,5 @@ $s->set_selector('pdf-link', '#download>a::attr(href)');
 $s->set_selector('next-page', '.paginat a[title="الصفحة التالية"]::attr(href)', 'first', true);
 
 $s->init();
-$s->header(null, true);
+$s->header();
 $s->start();

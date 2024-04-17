@@ -42,9 +42,11 @@ class WebDownloader extends Scrapper
 		$cards = $this->document->find($this->get_selector('posts'));
 		$count = count($cards);
 		
+		$page_title = $this->folder ? $this->folder.' / '.$this->page_title : $this->page_title;
+
 		echo '<div class="page-details">';
 		echo "<h2 class='site-name'>{$this->get_host()} <span class='page-number'>Page ({$this->page_num})</span></h2>";
-		echo "<h3 class='site-url'>{$this->url} <span class='icon-folder-open-empty download-folder'>{$this->page_title}</span></h3>";
+		echo "<h3 class='site-url'>{$this->url} <span class='icon-folder-open-empty download-folder'>{$page_title}</span></h3>";
 		echo '<h4>Page items count: <span class="count-number">' . $count .'</span></h4>';	
 		echo '</div>';
 
@@ -103,6 +105,7 @@ class WebDownloader extends Scrapper
 				
 				flush();
 				ob_flush();
+				$this->auto_scroll();
 
 				#----- DOWNLOAD THUMBNAIL -----#
 				if( ! file_exists($save_to_img_path) ) {
@@ -202,10 +205,10 @@ class WebDownloader extends Scrapper
 		echo '</ol>';
 		
 		if ( $this->get_selector('next-page-end') ){
-			echo ("<p class='proccess-finished txt-light bg-success'>Finished</p>");
 			$this->stop();
 			return;
 		}
+
 		if( !$this->local_file && $this->get_selector('next-page') ){
 			$next_page_url = $this->get_next_page_url($this->document, 'next-page');
 
@@ -253,14 +256,13 @@ require 'config.php';
 // $url = 'https://kolalkotob.com/cat77.html';
 // $folder = 'السيرة النبوية';
 
-$url = 'https://kolalkotob.com/cat51.html';
-$folder = 'الموسوعات والأطالس';
+$url = 'https://kolalkotob.com/cat1113.html';
+$folder = 'علوم تربوية';
 
 
 // $s = new WebDownloader($url, $path, $folder);
 $s = new WebDownloader($url, $folder);
-// $s->set_auto_download_dir('.ourChoice>h3');
-$s->set_download_file_types();
+// $s->set_download_file_types();
 $s->set_selector('page-title', '.ourChoice>h3');
 $s->set_selector('posts', '.card');
 $s->set_selector('post-title', 'img.card-img-top::attr(alt)');
@@ -271,5 +273,5 @@ $s->set_selector('next-page', '.pagination>li', 'find', '/');
 $s->set_selector('next-page-end', '.pagination>li:nth(2).disabled');
 
 $s->init();
-$s->header(null, true);
+$s->header();
 $s->start();

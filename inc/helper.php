@@ -64,7 +64,7 @@ function create_folder($path) {
 	if (is_dir($path) ) {
         return ['result'=>'fail', 'msg' => 'Directory: "'.$path.'" is already exist!', 'code'=>1];
     }
-    if (! mkdir($path, 0770, true) ){
+    if (! mkdir($path, 0777, true) ){
         return ['result'=>'fail', 'msg'=> 'Couldn\' make dir: "'.$path.'"', 'code'=>2];
     }
     return ['result'=>'success', 'msg'=> 'Directory created successfully', 'code'=>3];
@@ -228,3 +228,50 @@ class IconMsg
 // // $msg->color("txt-success");
 // // $msg->link($post_link);
 // // echo $msg;
+
+
+// https://stackoverflow.com/a/2602624/2269902
+
+function get_remote_file_size( $url ) {
+    // Assume failure.
+    $result = -1;
+  
+    $curl = curl_init( $url );
+  
+    // Issue a HEAD request and follow any redirects.
+    curl_setopt( $curl, CURLOPT_NOBODY, true );
+    curl_setopt( $curl, CURLOPT_HEADER, true );
+    curl_setopt( $curl, CURLOPT_RETURNTRANSFER, true );
+    curl_setopt( $curl, CURLOPT_FOLLOWLOCATION, true );
+    curl_setopt( $curl, CURLOPT_USERAGENT, $_SERVER['HTTP_USER_AGENT'] );
+  
+    $data = curl_exec( $curl );
+    curl_close( $curl );
+  
+    if( $data ) {
+      $content_length = "unknown";
+      $status = "unknown";
+  
+      if( preg_match( "/^HTTP\/1\.[01] (\d\d\d)/", $data, $matches ) ) {
+        $status = (int)$matches[1];
+      } elseif( preg_match( "/^HTTP\/2 (\d\d\d)/", $data, $matches ) ) {
+        $status = (int)$matches[1];
+      }
+  
+      if( preg_match( "/Content-Length: (\d+)/", $data, $matches ) ) {
+        $content_length = (int)$matches[1];
+      } elseif( preg_match( "/content-length: (\d+)/", $data, $matches ) ) {
+          $content_length = (int)$matches[1];
+      }
+  
+      // http://en.wikipedia.org/wiki/List_of_HTTP_status_codes
+      if( $status == 200 || ($status > 300 && $status <= 308) ) {
+        $result = $content_length;
+      }
+    }
+  
+    return $result;
+  }
+
+
+//   pre( get_remote_file_size($url) );
