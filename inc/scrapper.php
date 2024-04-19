@@ -28,6 +28,7 @@ class Scrapper
 	protected $pdf_done = null;
 	protected $img_done = null;
 	protected $icon_msg = null;
+	protected $dirs = null;
 
 	#-------------------------------------------------------------------------------------------#
 	function __construct($url, $folder='') {
@@ -40,8 +41,10 @@ class Scrapper
 		$url_parts = parse_url($url);
 		$this->download_dir = DOWNLOADS_DIR . DS. $url_parts['host']. DS. ($folder ? $folder.DS : '');
 		$this->icon_msg = new Helper\IconMsg();
+		$this->dirs = new Helper\Dirs($this->folder);
 
-		$mkdir = Helper\create_folder($this->download_dir);
+
+		$mkdir = $this->dirs->create($this->download_dir);
 		// Helper\pre($this->download_dir);
 		// Helper\pre('construct', $mkdir);
 	}
@@ -56,7 +59,7 @@ class Scrapper
 				$this->page_title = $this->init_page_title($this->document, $from_page_header); 
 			break;
 			case 'custom':
-				$this->page_title = $custom_title;
+				$this->page_title = Helper\slugify($$custom_title, true);
 			break;
 		}
 	}
@@ -90,7 +93,7 @@ class Scrapper
 			$this->page_title = $page_title;
 		}
 		else if ($page_title) {
-			$this->page_title = $page_title->text();
+			$this->page_title = Helper\slugify($page_title->text(), true);
 		}
 		return ['result'=>'false', 'msg'=> "Couldn't find page-title", 'code'=>1];
 	}	
@@ -105,6 +108,7 @@ class Scrapper
 	#-------------------------------------------------------------------------------------------#
 	function get_download_path($title, $ext) {
 		$path = trim($title, ' ') .'.'.$ext;
+		$path = Helper\slugify($path, true);
 		if ($this->download_dir) {
 			$path = $this->download_dir .DS.trim($title, ' ').'.'.trim($ext, ' ');
 		}
@@ -133,21 +137,21 @@ class Scrapper
 	// }
 	#-------------------------------------------------------------------------------------------#
 	function set_download_dir_from_selector($node, $selector_key, $func='first') {
-		$page_title = $this->get_selector('page-title');
+		$page_title_selector = $this->get_selector($selector_key);
 
-		if (! $this->get_selector($selector_key)) {
+		if (! $page_title_selector) {
 			return false;
 		}
 		
 		$result = $this->get_selector_node($node, $selector_key);
 		if ($result) {
-			$this->page_title = trim($result->text(), ' ');
+			$this->page_title = Helper\slugify($result->text(), true);
 			$this->download_dir = $this->download_dir . $this->page_title;
 			
-			$mkdir = Helper\create_folder($this->download_dir);
+			$this->dirs->create($this->download_dir);
 			// Helper\pre($this->download_dir);
 			// Helper\pre(__METHOD__, $mkdir);
-			if ($mkdir['result'] == 'success') {
+			if (empty($this->dirs->get_errors())) {
 				return true;
 			}
 		}
@@ -203,7 +207,7 @@ class Scrapper
 		if ($selector && $node->has($selector)) {
 			$result = $node->$func($selector);
 		}
-		return $result;
+		return  $result;
 	}
 	#-------------------------------------------------------------------------------------------#
 	// function get_node($node, $key, $func='first') {
@@ -330,6 +334,7 @@ class Scrapper
 	}
 	#-------------------------------------------------------------------------------------------#
 	function set_current_page($page_num, $page_link) {
+		// TODO: save data as json and fix save 'Array' in txt file
 		file_put_contents($this->download_dir . DS.'current_page.txt', $page_num .'->'. $page_link);
 	}
 	#-------------------------------------------------------------------------------------------#

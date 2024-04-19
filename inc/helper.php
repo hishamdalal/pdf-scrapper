@@ -17,6 +17,8 @@ namespace App\Helper;
 // https://stackoverflow.com/a/2021647/2269902
 // https://stackoverflow.com/a/56328226/2269902
 // https://graphemica.com/unicode/characters
+// arabic characters unicode range (0600–06FF, 256 characters)
+
 function slugify($file_name) {
     $unicode = [
         "~[\x{0000}-\x{001F}]~u", # control characters
@@ -33,15 +35,20 @@ function slugify($file_name) {
         "~[\x{007C}]~u", # |
         "~[\x{007E}-\x{00BF}]~u", 
         "~[\x{00C0}-\x{05F4}]~u", 
-        "~[\x{0600}-\x{061F}]~u",
-        "~[\x{064B}-\x{065F}]~u",
-        "~[\x{066B}-\x{2EBE0}]~u",
+        "~[\x{0600}-\x{0620}]~u",
+        "~[\x{063B}-\x{063F}]~u",
+        "~[\x{064B}-\x{0653}]~u", # 
+        "~[\x{0656}-\x{065F}]~u", # 
+        "~[\x{066B}-\x{0670}]~u",
+        "~[\x{0675}-\x{2EBE0}]~u",
+        // "~[\x{0700}-\x{2EBE0}]~u",
         "/-+/",
     ];
     $file_name = str_replace([chr(0), chr(9), chr(10), chr(13), chr(128), "\n"], '', $file_name);
     $file_name = preg_replace($unicode, '-', $file_name);
     $file_name = preg_replace('/-+/', '-', $file_name);
     $file_name = trim($file_name, '-');
+    $file_name = trim($file_name, ' ');
     return $file_name;
 }
 
@@ -59,16 +66,79 @@ function pre($title, $message=''){
 	echo '</pre>';
 	echo '</fieldset>';
 }
+class Dirs 
+{
+    private $path = '';
+    private $errors = [];
 
-function create_folder($path) {
-	if (is_dir($path) ) {
-        return ['result'=>'fail', 'msg' => 'Directory: "'.$path.'" is already exist!', 'code'=>1];
+    public function __construct($path='') {
+        if ($path) $this->path = $this->clean($path) .'/';
     }
-    if (! mkdir($path, 0777, true) ){
-        return ['result'=>'fail', 'msg'=> 'Couldn\' make dir: "'.$path.'"', 'code'=>2];
+
+    public function set_error($method, $msg) {
+        $this->errors[][$method] = $msg;
     }
-    return ['result'=>'success', 'msg'=> 'Directory created successfully', 'code'=>3];
+
+    public function get_errors() {
+        // $errors[] = $this->errors;
+        // $errors[] = error_get_last();
+        // return $errors;
+        return $this->errors;
+    }
+
+    public function create($dir) {
+        $this->errors[] = [];
+
+        if (is_dir($dir)){
+            $this->set_error(__METHOD__, "Directory '{$dir}' is already exists!");
+            return false;
+        }
+        $array = explode('/', $dir);
+        if (count($array) > 1) {
+            $current_dir = $this->path;
+            foreach( $array as $value ) {
+                $current_dir .= trim($value, ' ') .'/';
+                // echo $current_dir.'<br>';
+                if (is_dir($current_dir)) {
+                    $this->path .= $current_dir;
+                    continue;
+                }
+                else {
+                    $this->mkdir($current_dir);
+                }
+            }
+        }
+        else {
+            $this->mkdir($dir);
+        }
+    }
+
+    private function mkdir($path) {
+        if (!is_dir($path)) {
+            return mkdir($path) or die("Couldn't create dir '{$path}'");
+        }
+        else {
+            $this->set_error(__METHOD__," Directory '$path' is already exists!");
+            return false;
+        }
+    }
+
+    private function clean($dirname) {
+        return trim(str_replace(['\\', ' '], ['/', ''], $dirname), '/');
+    }
+
 }
+
+// function create_folder($path) {
+// 	if (is_dir($path) ) {
+//         return ['result'=>'fail', 'msg' => 'Directory: "'.$path.'" is already exist!', 'code'=>1];
+//     }
+//     if (! mkdir($path, 0777, true) ){
+//         die('Couldn\'t create folder "'.$path.'"');
+//         return ['result'=>'fail', 'msg'=> 'Couldn\' make dir: "'.$path.'"', 'code'=>2];
+//     }
+//     return ['result'=>'success', 'msg'=> 'Directory created successfully', 'code'=>3];
+// }
 
 // https://stackoverflow.com/a/8891890/2269902
 function url_origin( $s, $use_forwarded_host = false ) {
@@ -275,3 +345,36 @@ function get_remote_file_size( $url ) {
 
 
 //   pre( get_remote_file_size($url) );
+
+
+function size_unit($file_size){
+	$size = 0;
+	switch ($file_size) {
+        case $file_size < 1024:
+            $size = $file_size .' B'; break;
+        case $file_size < 1048576:
+            $size = round($file_size / 1024, 2) .' KiB'; break;
+        case $file_size < 1073741824:
+            $size = round($file_size / 1048576, 2) . ' MiB'; break;
+        case $file_size < 1099511627776:
+            $size = round($file_size / 1073741824, 2) . ' GiB'; break;
+    }
+	return $size;
+}
+  
+function fsize($path) {
+	$size = 0;
+    $fp = fopen($path,"r");
+	if ($fp) {
+		$inf = stream_get_meta_data($fp); 
+		fclose($fp); 
+		foreach($inf["wrapper_data"] as $v) { 
+			if (stristr($v, "content-length")) { 
+				$v = explode(":", $v); 
+				$size = trim($v[1]); 
+			} 
+		}
+	}
+	$size2 = size_unit($size);
+    return [$size, $size2];
+} 

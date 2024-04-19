@@ -65,11 +65,11 @@ class WebDownloader extends Scrapper
 				$this->img_done = null;
 
 				$post_link = $card->first($this->get_selector('post-link'));
-				$post_title = $card->first($this->get_selector('post-title'));
+				$post_title = $card->first($this->get_selector('post-title'))->text();
+				
 				// Helper\pre('post-title', $post_title);
 				// return;
 
-				$post_link = $post_link;
 				$post_title = Helper\slugify($post_title, true);
 				// $post_title = preg_replace('/^كتاب/' ,'', $post_title);
 
@@ -113,7 +113,7 @@ class WebDownloader extends Scrapper
 					try {
 
 						$thumb_link = $this->get_selector_node($card, 'post-thumb');
-						// $thumb_link = $this->get_bg_url($thumb_link);
+						$thumb_link = $this->get_bg_url($thumb_link);
 						// Helper\pre('thumb_link', $thumb_link);
 						// Helper\pre('save_to_img_path', $save_to_img_path);
 						// return;
@@ -256,21 +256,22 @@ require 'config.php';
 // $url = 'https://kolalkotob.com/cat77.html';
 // $folder = 'السيرة النبوية';
 
-$url = 'https://kolalkotob.com/cat116.html';
-$folder = 'علوم تربوية';
+$url = 'https://mktbtypdf.com/categories/%d8%a7%d9%84%d8%af%d9%8a%d8%a7%d9%86%d8%a9-%d8%a7%d9%84%d8%a5%d8%b3%d9%84%d8%a7%d9%85%d9%8a%d8%a9/';
+// $folder = 'الديانة الإسلامية';
 
 
-// $s = new WebDownloader($url, $path, $folder);
-$s = new WebDownloader($url, $folder);
+// $s = new WebDownloader($url, $folder);
+$s = new WebDownloader($url);
 // $s->set_download_file_types();
-$s->set_selector('page-title', '.ourChoice>h3');
-$s->set_selector('posts', '.card');
-$s->set_selector('post-title', 'img.card-img-top::attr(alt)');
-$s->set_selector('post-link', 'a::attr(href)');
-$s->set_selector('post-thumb', 'img.card-img-top::attr(src)');
-$s->set_selector('pdf-link', 'a[href^="https://kolalkotob.com/download"]::attr(href)');
-$s->set_selector('next-page', '.pagination>li', 'find', '/');
-$s->set_selector('next-page-end', '.pagination>li:nth(2).disabled');
+$s->set_selector('page-title', 'h2.section-heading');
+$s->set_selector('posts', '.library-book');
+$s->set_selector('post-title', '.book-title>a');
+$s->set_selector('post-author', '.book-author>a');
+$s->set_selector('post-link', '.book-title>a::attr(href)');
+$s->set_selector('post-thumb', 'div.book-img::attr(style)');
+$s->set_selector('pdf-link', '.modal-option>.book-links a::attr(href)');
+$s->set_selector('next-page', '.mktbty-pagination>a.next.page-numbers::attr(href)', 'find', '/');
+// $s->set_selector('next-page-end', '.pagination>li:nth(2).disabled');
 
 $s->init();
 $s->header();
