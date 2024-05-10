@@ -35,17 +35,17 @@ function slugify($file_name) {
         "~[\x{007C}]~u", # |
         "~[\x{007E}-\x{00BF}]~u", 
         "~[\x{00C0}-\x{05F4}]~u", 
-        "~[\x{0600}-\x{0620}]~u",
-        "~[\x{063B}-\x{063F}]~u",
-        "~[\x{064B}-\x{0653}]~u", # 
+        "~[\x{0600}-\x{0620}]~u", # ؀ -> ؠ
+        "~[\x{063B}-\x{063F}]~u", # arabic diacritic
+        "~[\x{064B}-\x{0652}]~u", # 
         "~[\x{0656}-\x{065F}]~u", # 
         "~[\x{066B}-\x{0670}]~u",
         "~[\x{0675}-\x{2EBE0}]~u",
         // "~[\x{0700}-\x{2EBE0}]~u",
         "/-+/",
     ];
-    $file_name = str_replace([chr(0), chr(9), chr(10), chr(13), chr(128), "\n"], '', $file_name);
-    $file_name = preg_replace($unicode, '-', $file_name);
+    // $file_name = str_replace([chr(0), chr(9), chr(10), chr(13), chr(128), "\n"], '', $file_name);
+    $file_name = preg_replace($unicode, '', $file_name);
     $file_name = preg_replace('/-+/', '-', $file_name);
     $file_name = trim($file_name, '-');
     $file_name = trim($file_name, ' ');
@@ -66,10 +66,12 @@ function pre($title, $message=''){
 	echo '</pre>';
 	echo '</fieldset>';
 }
+
+
 class Dirs 
 {
     private $path = '';
-    private $errors = [];
+    private $errors = null;
 
     public function __construct($path='') {
         if ($path) $this->path = $this->clean($path) .'/';
@@ -87,15 +89,15 @@ class Dirs
     }
 
     public function create($dir) {
-        $this->errors[] = [];
+        // $this->errors = null;
 
-        if (is_dir($dir)){
-            $this->set_error(__METHOD__, "Directory '{$dir}' is already exists!");
+        if (is_dir($this->path.$dir)){
+            //$this->set_error(__METHOD__, "Directory '{$this->path}{$dir}' is already exists!");
             return false;
         }
         $array = explode('/', $dir);
         if (count($array) > 1) {
-            $current_dir = $this->path;
+            $current_dir = '';//$this->path;
             foreach( $array as $value ) {
                 $current_dir .= trim($value, ' ') .'/';
                 // echo $current_dir.'<br>';
@@ -109,6 +111,7 @@ class Dirs
             }
         }
         else {
+            //pre($this->path);
             $this->mkdir($dir);
         }
     }
@@ -299,6 +302,18 @@ class IconMsg
 // // $msg->link($post_link);
 // // echo $msg;
 
+// https://stackoverflow.com/a/2236698/2269902
+function file_get_contents_utf8($file_path) {
+    $html = file_get_contents($file_path);
+    return $html;
+    // $htmlInterm = iconv("UTF-8", "Windows-1256", $html); //convert
+    // return $htmlInterm;
+    return mb_convert_encoding($str, "windows-1256", "UTF-8");
+    // $html = mb_convert_encoding($html, 'HTML-ENTITIES', "UTF-8");
+    // return $html;
+    //  return mb_convert_encoding($html, 'UTF-8',
+    //     mb_detect_encoding($html, 'UTF-8, windows-1256', true));
+}
 
 // https://stackoverflow.com/a/2602624/2269902
 

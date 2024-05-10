@@ -1,6 +1,13 @@
 <?php
 namespace App;
+// https://stackoverflow.com/a/39350617/2269902
+@ini_set('output_buffering','Off');
+@ini_set('zlib.output_compression',0);
+@ini_set('implicit_flush',1);
+@ob_end_clean();
 set_time_limit(0);
+ob_start();
+
 #ini_set('max_execution_time', 10); //300 seconds = 5 minutes
 require_once('vendor/autoload.php');
 require_once('inc/helper.php');
@@ -17,8 +24,9 @@ class WebDownloader extends Scrapper
 	}
 	#-------------------------------------------------------------------------------------------#
 	function start($url='') {
+		if (ob_get_level() == 0) ob_start();
 
-		$url = $url ? $url : $this->url;
+		
 		
 		$current = $this->get_current_page();
 
@@ -33,7 +41,11 @@ class WebDownloader extends Scrapper
 				$this->page_num = $page_num;
 			}
 		}
-		
+		$url = $url ? $url : $this->url;
+		$url = trim($url, ' ');
+
+		$this->document = new Document($url, true);
+
 		// https://github.com/Imangazaliev/DiDOM
 		## Alternatives:
 		// https://www.php.net/manual/en/class.domdocument.php
@@ -103,9 +115,9 @@ class WebDownloader extends Scrapper
 					echo $this->icon_msg->msg($post_title, 'txt-primary', $post_link)->icons('icon-download', 'icon-cog-alt')->counter($i, $count);
 				}
 				
-				flush();
-				ob_flush();
 				$this->auto_scroll();
+				ob_flush();
+				flush();
 
 				#----- DOWNLOAD THUMBNAIL -----#
 				if( ! file_exists($save_to_img_path) ) {
@@ -139,8 +151,8 @@ class WebDownloader extends Scrapper
 					echo $this->icon_msg->msg('Already exist!', 'txt-info', $post_link)->icons('icon-picture', 'icon-download');
 				}
 
-				flush();
 				ob_flush();
+				flush();
 
 				#----- DOWNLOAD PDF FILE -----#
 				if( ! file_exists($save_to_pdf_path)) {
@@ -177,8 +189,8 @@ class WebDownloader extends Scrapper
 					echo $this->icon_msg->msg("Already exist!", 'txt-info', $post_link)->icons('icon-picture', 'icon-download');
 				}			
 
-				flush();
 				ob_flush();
+				flush();
 				
 				echo '</ul>';
 
@@ -192,8 +204,8 @@ class WebDownloader extends Scrapper
 				continue;
 			}	
 				
-			flush();
 			ob_flush();		
+			flush();
 
 			// if ($i>=2){
 			// 	exit('====');
@@ -212,8 +224,8 @@ class WebDownloader extends Scrapper
 		if( !$this->local_file && $this->get_selector('next-page') ){
 			$next_page_url = $this->get_next_page_url($this->document, 'next-page');
 
-			flush();
 			ob_flush();	
+			flush();
 
 			if ($next_page_url) {
 				

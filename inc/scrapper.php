@@ -1,6 +1,7 @@
 <?php
 namespace App;
 use DiDom\Document;
+// header('Content-Type: text/html; charset =windows-1256');
 
 // TODO:
 // use direct file link to check files doublicate
@@ -31,20 +32,21 @@ class Scrapper
 	protected $dirs = null;
 
 	#-------------------------------------------------------------------------------------------#
-	function __construct($url, $folder='') {
+	function __construct($url, $folder='', $encoding='UTF-8') {
 		$url = trim($url, ' ');
 		$this->first_url = urldecode($url);
 		$this->url = urldecode($url);
-		$this->document = new Document($url, true);
+		$this->document = new Document($url, true, $encoding);
 		$this->folder = trim($folder, ' ');
 		$this->page_title = $this->folder;
 		$url_parts = parse_url($url);
-		$this->download_dir = DOWNLOADS_DIR . DS. $url_parts['host']. DS. ($folder ? $folder.DS : '');
+		$this->download_dir = 'downloads' . DS. $url_parts['host']. DS. ($this->folder ? $this->folder.DS : '');
+
 		$this->icon_msg = new Helper\IconMsg();
-		$this->dirs = new Helper\Dirs($this->folder);
-
-
-		$mkdir = $this->dirs->create($this->download_dir);
+		$this->dirs = new Helper\Dirs($this->download_dir);
+		
+		$this->dirs->create($this->folder);
+		// $this->dirs->folder($this->folder);
 		// Helper\pre($this->download_dir);
 		// Helper\pre('construct', $mkdir);
 	}
@@ -62,6 +64,21 @@ class Scrapper
 				$this->page_title = Helper\slugify($$custom_title, true);
 			break;
 		}
+		helper\pre($this->dirs->get_errors());
+	}
+	#-------------------------------------------------------------------------------------------#
+	function set_page_title($title) {
+		$this->page_title = $title;
+
+		$this->download_dir = $this->download_dir . $this->page_title;
+		
+		try {
+			$this->dirs->create($this->download_dir);
+			return true;
+		} catch( Exception $e) {
+			return false;
+		}
+		
 	}
 	#-------------------------------------------------------------------------------------------#
 	function auto_scroll() {
@@ -162,9 +179,11 @@ class Scrapper
 		$this->selector[$key] = $value;
 		if ($func) $this->func[$key] = $func;
 		if ($host_suffix) {
-			$suffix = ($host_suffix === true) ? '' : $host_suffix;
+			// if true: https://host.com else: https://host.com.$host_suffix
+			$suffix = ($host_suffix === true) ? '' : $host_suffix; 
 			$this->host[$key] = $this->get_host($suffix);
 		}
+		// helper\pre([$this->selector, $this->func, $this->host]);
 	}
 	#-------------------------------------------------------------------------------------------#
 	// function set_selectors($key, $array, $func='', $host_suffix='') {
@@ -220,24 +239,27 @@ class Scrapper
 	#-------------------------------------------------------------------------------------------#
 	// todo: rename method to: 
 	// get_page_element() || get_element_from_url()
-	function get_element($url, $selector_key, $error_msg=Null) {
+	function get_element($url, $selector_key, $return_node=false) {
 
 		if (Helper\is_404($url)) {
 			return ['error'=> 'Page not found!','code'=> 1];
 		}
 		$document = new Document($url, true);
 		$selector = $this->get_selector($selector_key);
+		
 		// $func = find or first
-		if ($selector) {
-			if ($document->has($selector)){
-				$func = $this->get_func($selector_key);
-				$host = $this->get_selector_host($selector_key);
-				return $host.$document->$func($selector);
-			}
+		if ($selector && $document->has($selector)){
+			$func = $this->get_func($selector_key);
+			$host = $this->get_selector_host($selector_key);
+			// helper\pre([$func, $host]);
+			$result = $host.$document->$func($selector);
+			if ($return_node) {return ['element'=>$result, 'node'=>$document];}
+			return $result;
 		}
 		else {
-			return ['error'=> 'Couldn\'t find selector "{$selector_key}->{$selector}" in "{$url}"', 'code'=> 2];
+			return ['error'=> "Couldn't find selector '{$selector_key}' -> '{$selector}' in '{$url}'", 'code'=> 3];
 		}
+		
 	}
 	#-------------------------------------------------------------------------------------------#
 	function get_elements_ary($url, $selector_key) {
@@ -280,10 +302,14 @@ class Scrapper
 			if($next_page) {
 				$func = $this->get_func($selector_key);
 				$host = $this->get_selector_host($selector_key);
+
+				// helper\pre([$selector_key, $selector, $next_page, $func, $host]); 
+				// return false;
 				// Note:
 				// $document->$func($selector)
 				// Must return one string result not array
-				return $host.$document->$func($selector);
+				return urldecode($host.$document->$func($selector));
+				// return $document->find($selector);
 			}
 			else {
 				// return ['result'=> 'fail','msg'=> 'couldn\'t find next page!', 'code'=>1];
@@ -298,13 +324,19 @@ class Scrapper
 	}
 
 	#-------------------------------------------------------------------------------------------#
+	function get_next_page_number($href, $pattern, $key=1) {
+		if ( @preg_match($pattern, $href, $matches) ) {
+			return isset($matches[$key]) ? $matches[$key] : null;
+		}
+	}
+	#-------------------------------------------------------------------------------------------#
 	function download_pdf($link, $save_to) {
 		try{
 			if ($this->download_file_types) {
 				@preg_match($this->download_file_types, $link, $matches);
 				// Helper\pre('matches', [$matches, $link, $this->download_file_types]); 
 				if ( count($matches) > 1 ) {
-					$content = @file_get_contents($link);
+					$content = @$this->file_get_contents($link);
 					if ($content){
 						return @file_put_contents($save_to, $content);
 					}
@@ -312,9 +344,9 @@ class Scrapper
 				}
 			}
 			else {
-				$content = @file_get_contents($link);
+				$content = @$this->file_get_contents($link);
 				if ($content){
-					return @file_put_contents($save_to, $content);
+					return @$this->file_put_contents($save_to, $content);
 				}
 			}
 		} catch (Exception $e) {
@@ -325,9 +357,9 @@ class Scrapper
 	#-------------------------------------------------------------------------------------------#
 	function download_thumb($link, $save_to) {
 		if ($link) {
-			$content = @file_get_contents($link);
+			$content = @$this->file_get_contents($link);
 			if( $content ) {
-				return @file_put_contents($save_to, $content);
+				return @$this->file_put_contents($save_to, $content);
 			}
 			// throw new Exception("Couldn't download thumb file '{$link}'");
 		}
@@ -335,18 +367,34 @@ class Scrapper
 	#-------------------------------------------------------------------------------------------#
 	function set_current_page($page_num, $page_link) {
 		// TODO: save data as json and fix save 'Array' in txt file
-		file_put_contents($this->download_dir . DS.'current_page.txt', $page_num .'->'. $page_link);
+		// file_put_contents($this->download_dir . DS.'current_page.txt', $page_num .'->'. $page_link);
+		$data['number'] = $page_num;
+		$data['url'] = $page_link;
+
+		$json_data = json_encode($data);
+		return file_put_contents($this->download_dir. DS. '_current_page.json', $json_data);
+
 	}
 	#-------------------------------------------------------------------------------------------#
 	function get_current_page() {
-		if (is_file($this->download_dir . DS.'current_page.txt')) {
-			$current = file_get_contents($this->download_dir . DS.'current_page.txt');
-			if($current){
-				$contents = explode('->', $current);
-				$page_num = $contents[0];
-				$current_page_url = $contents[1];
+		// if (is_file($this->download_dir . DS.'current_page.txt')) {
+		// 	$current = file_get_contents($this->download_dir . DS.'current_page.txt');
+		// 	if($current){
+		// 		$contents = explode('->', $current);
+		// 		$page_num = $contents[0];
+		// 		$current_page_url = $contents[1];
 				
-				return ['number'=>$page_num, 'url'=>$current_page_url];
+		// 		return ['number'=>$page_num, 'url'=>$current_page_url];
+		// 	}
+		// }
+		// return false;
+
+		if (is_file($this->download_dir . DS.'_current_page.json')) {
+			$current = $this->file_get_contents($this->download_dir. DS. '_current_page.json');
+			if($current){
+				$data = json_decode($current);
+				
+				return ['number'=>$data->number, 'url'=>$data->url];
 			}
 		}
 		return false;
@@ -355,6 +403,15 @@ class Scrapper
 	// function set_next_page($regex) {
 	// 	$this->next_page_selector = $regex;
 	// }	
+	#-------------------------------------------------------------------------------------------#
+	function file_get_contents($file_path) {
+		// return file_get_contents($file_path);
+		return helper\file_get_contents_utf8($file_path);
+	}
+	#-------------------------------------------------------------------------------------------#
+	function file_put_contents($file_path, $content) {
+		return file_put_contents($file_path, $content);
+	}
 	#-------------------------------------------------------------------------------------------#
 	function get_host($suffix='') {
 		$url_parts = parse_url($this->first_url);

@@ -1,0 +1,71 @@
+// TODO: use this algorithm in scrapper class
+
+function any() {
+    $result = new StdClass();
+    $result->error = True;
+    $result->msg = 'Unknown error!';
+     $result->resource = null;
+
+    $r = get_some_resource();
+
+    if ($r) {
+        $result->resource = $r;
+        $result->error = False;
+        $result->msg = 'No error found';
+    }
+    else {
+        $result->msg = "Coudn't found resource";
+    }
+    return $result;
+}
+
+
+// advanced
+function any() {
+    $error = new StdClass();
+    $error->msg = 'Unknown error!';
+    $error->state = True;
+
+    $result = new StdClass();
+    $result->state = null;
+    $result->error = $error;
+    $result->resource = null;
+
+    $r = get_some_resource();
+
+    if ($r) {
+        $result->resource = $r;
+        $result->error->state = False;
+        $result->errro->msg = "No error found";
+    }
+    else {
+        $result->error->state = True;
+        $result->error->msg = "Coudn't found resource";
+    }
+    return $result;
+}
+
+// useage
+1:
+function other(){
+    $r = any();
+    if ( $r->error->state == True ) {
+        echo $r->error->msg;
+        return false;
+    }
+    else {
+        return $r->resource;
+    }
+}
+
+2:
+function other(){
+    $r = any();
+    if ( $r->resource ) {
+        return $r->resource;
+    }
+    else {
+        echo $r->error->msg;
+        return false;
+    }
+}

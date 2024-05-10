@@ -12,8 +12,8 @@ class WebDownloader extends Scrapper
 {
 
 	#-------------------------------------------------------------------------------------------#
-	function __construct($url, $folder='') {
-		parent::__construct($url, $folder);
+	function __construct($url, $folder='', $encoding='UTF-8') {
+		parent::__construct($url, $folder, $encoding);
 	}
 	#-------------------------------------------------------------------------------------------#
 	function start($url='') {

@@ -19,10 +19,30 @@ class WebDownloader extends Scrapper
 	function start($url='') {
 
 		$url = $url ? $url : $this->url;
-		
-		$current = $this->get_current_page();
+		$url = trim($url, ' ');
 
-		if($current){
+		$current = $this->get_current_page();
+		
+		// $document = new Document('https://mktbtypdf.com/categories/%D8%A7%D9%84%D8%AF%D9%8A%D8%A7%D9%86%D8%A9-%D8%A7%D9%84%D8%A5%D8%B3%D9%84%D8%A7%D9%85%D9%8A%D8%A9/page/122/');
+		// $next = $document->first($this->get_selector('next-page'));
+		
+		// $this->document = new Document($url, true);
+		// $next_page_selector = $this->get_selector('next-page');
+		// $next_page_url = $document->first($next_page_selector);
+
+		// $next_page_url = $this->get_next_page_url($this->document, 'next-page');
+
+		// Helper\pre('NEXT', [$url, $next_page_url]);
+		// return;
+
+		if(is_array($current)){
+			
+			// if ( true || str_ends_with($current['url'], 'Array') ) {
+				
+			// 	Helper\pre('current', $current);
+			// 	return;
+			// }
+
 			$page_num = $current['number'];
 			$current_page_url = $current['url'];
 			
@@ -33,6 +53,11 @@ class WebDownloader extends Scrapper
 				$this->page_num = $page_num;
 			}
 		}
+
+		
+		// $next_page_url = $this->get_next_page_url($this->document, 'next-page');
+		// $next_page_number = $this->get_next_page_number($next_page_url, '/\/page\/(\d+)/i', 1);
+		// 		helper\pre($next_page_number); return;
 		
 		// https://github.com/Imangazaliev/DiDOM
 		## Alternatives:
@@ -50,8 +75,8 @@ class WebDownloader extends Scrapper
 		echo '<h4>Page items count: <span class="count-number">' . $count .'</span></h4>';	
 		echo '</div>';
 
-		flush();
 		ob_flush();
+		flush();
 
 		echo '<ol class="container">';
 		echo "<li class='head txt-dark bg-info'>#<span>Title</span><span>Thumbnail</span><span>File</span></li>";
@@ -75,7 +100,7 @@ class WebDownloader extends Scrapper
 
 				// Helper\pre($post_title);
 				// Helper\pre($post_link);
-				// return;
+				// continue;
 
 				echo '<ul class="line">';
 				if (! $post_link ){
@@ -103,9 +128,9 @@ class WebDownloader extends Scrapper
 					echo $this->icon_msg->msg($post_title, 'txt-primary', $post_link)->icons('icon-download', 'icon-cog-alt')->counter($i, $count);
 				}
 				
-				flush();
-				ob_flush();
 				$this->auto_scroll();
+				ob_flush();
+				flush();
 
 				#----- DOWNLOAD THUMBNAIL -----#
 				if( ! file_exists($save_to_img_path) ) {
@@ -139,8 +164,8 @@ class WebDownloader extends Scrapper
 					echo $this->icon_msg->msg('Already exist!', 'txt-info', $post_link)->icons('icon-picture', 'icon-download');
 				}
 
-				flush();
 				ob_flush();
+				flush();
 
 				#----- DOWNLOAD PDF FILE -----#
 				if( ! file_exists($save_to_pdf_path)) {
@@ -177,8 +202,8 @@ class WebDownloader extends Scrapper
 					echo $this->icon_msg->msg("Already exist!", 'txt-info', $post_link)->icons('icon-picture', 'icon-download');
 				}			
 
-				flush();
 				ob_flush();
+				flush();
 				
 				echo '</ul>';
 
@@ -192,8 +217,8 @@ class WebDownloader extends Scrapper
 				continue;
 			}	
 				
-			flush();
 			ob_flush();		
+			flush();
 
 			// if ($i>=2){
 			// 	exit('====');
@@ -210,14 +235,26 @@ class WebDownloader extends Scrapper
 		}
 
 		if( !$this->local_file && $this->get_selector('next-page') ){
+			
+			$this->document = new Document($url, true);
+
 			$next_page_url = $this->get_next_page_url($this->document, 'next-page');
 
-			flush();
+			// Helper\pre('url', $next_page_url); return;
+
 			ob_flush();	
+			flush();
 
 			if ($next_page_url) {
 				
 				$this->page_num++;
+
+				$next_page_number = $this->get_next_page_number($next_page_url, '/\/page\/(\d+)/i', 1);
+				// helper\pre($next_page_number); return;
+
+				if(intval($next_page_number) > 0) {
+					$this->page_num = intval($next_page_number);
+				}
 
 				$this->set_current_page($this->page_num, $next_page_url);
 
@@ -270,7 +307,7 @@ $s->set_selector('post-author', '.book-author>a');
 $s->set_selector('post-link', '.book-title>a::attr(href)');
 $s->set_selector('post-thumb', 'div.book-img::attr(style)');
 $s->set_selector('pdf-link', '.modal-option>.book-links a::attr(href)');
-$s->set_selector('next-page', '.mktbty-pagination>a.next.page-numbers::attr(href)', 'find', '/');
+$s->set_selector('next-page', '.mktbty-pagination>a.next.page-numbers::attr(href)', 'first', false);
 // $s->set_selector('next-page-end', '.pagination>li:nth(2).disabled');
 
 $s->init();
