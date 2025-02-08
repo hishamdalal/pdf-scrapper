@@ -293,6 +293,8 @@ require 'config.php';
 // $url = 'https://kolalkotob.com/cat77.html';
 // $folder = 'السيرة النبوية';
 
+#####  TOW STEPS #####
+
 $url = 'https://mktbtypdf.com/categories/%d8%a7%d9%84%d8%af%d9%8a%d8%a7%d9%86%d8%a9-%d8%a7%d9%84%d8%a5%d8%b3%d9%84%d8%a7%d9%85%d9%8a%d8%a9/';
 // $folder = 'الديانة الإسلامية';
 
